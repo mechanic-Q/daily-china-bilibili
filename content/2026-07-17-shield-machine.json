@@ -1,0 +1,47 @@
+{
+  "language": "zh-CN",
+  "date": "2026-07-17",
+  "slug": "shield-machine-xianfeng",
+  "source_file": "/mnt/e/每日新中国/2026-07-17/2新闻_已审核.md",
+  "source_url": "https://www.news.cn/tech/20260717/51c23a7c0b5d4800acc81a5467d652ff/c.html",
+  "source_title": "国产14米级超大直径盾构机“先锋号”下线",
+  "title": "14米盾构机要穿过太湖，难点到底在哪｜每日新中国",
+  "description": "国产14米级超大直径盾构机“先锋号”将用于锡宜S2线穿太湖段隧道建设。本期从开挖尺度、复杂地质、刀盘与导向系统、线路价值四个方面解释这台大国重器为什么重要。\n\n来源：新华社\n栏目：每日新中国",
+  "tid": 232,
+  "tags": ["盾构机", "中国制造", "超级工程", "轨道交通", "每日新中国"],
+  "cover_text": "14米盾构机\n穿越太湖",
+  "state_ceiling": "awaiting_user_confirmation",
+  "target_duration_seconds": [120, 240],
+  "segments": [
+    {
+      "heading": "14米是什么尺度",
+      "narration": "一台开挖直径达到十四点零二米的国产盾构机，即将钻进太湖湖底。它叫先锋号，将用于无锡至宜兴城际轨道交通锡宜S2线。十四米不是普通地铁盾构机的尺寸，它意味着一次就能挖出足以容纳大直径隧道的断面。但机器做得更大，并不只是把零件等比例放大。刀盘受力、排渣、姿态控制和地层稳定，都会变成更难的系统工程。",
+      "overlay": "开挖直径 14.02米",
+      "image_prompt": "A colossal modern Chinese tunnel boring machine in an industrial assembly hall, workers for scale, enormous circular cutterhead, realistic engineering photography, wide horizontal composition, no readable text, no logo"
+    },
+    {
+      "heading": "真正难的是太湖地层",
+      "narration": "先锋号面对的任务，是国内首条下穿太湖的超大直径盾构隧道。穿太湖段总长二十一点六公里，计划使用四台十四米级盾构机，分五个区间掘进。湖底施工不能像地面工程那样随时打开检查，前方地质变化、地下水压力和设备可靠性，都直接影响施工安全。机器既要稳定推进，也要把开挖面压力控制在合适范围，避免地层扰动。",
+      "overlay": "21.6公里 穿太湖隧道",
+      "image_prompt": "Technical cross section of a giant tunnel boring machine constructing a railway tunnel deep beneath a large lake, layers of soil and water visible, cinematic engineering visualization, wide horizontal composition, no readable text, no logo"
+    },
+    {
+      "heading": "一张刀盘为什么要装多种刀具",
+      "narration": "为适应不同地质，先锋号采用带压复合刀盘，配置滚刀、切刀和超挖刀等多种刀具，可以按区间条件组合更换。前方如果出现硬岩、软土或复杂交界面，同一种刀具并不能包打天下。机器还搭载大功率碎石机和同步注浆系统：前者处理开挖出的岩土，后者在管片拼装后及时填充空隙，帮助隧道结构保持稳定。",
+      "overlay": "复合刀盘 多类型刀具",
+      "image_prompt": "Close detailed view of a giant tunnel boring machine cutterhead with multiple cutter types, rollers and cutting tools, industrial realism, dramatic side lighting, wide horizontal composition, no readable text, no logo"
+    },
+    {
+      "heading": "大机器也要精确导航",
+      "narration": "直径十四米的机器在地下前进，方向偏差却不能靠肉眼纠正。先锋号集成高精度导向系统和智能开挖管理系统，需要持续感知姿态、推力、扭矩和地层状态，再调整推进参数。这里真正体现国产化能力的，不只是把钢铁设备造出来，而是机械、液压、传感、控制和施工经验能否作为一个整体长期稳定工作。",
+      "overlay": "机械 + 液压 + 感知 + 控制",
+      "image_prompt": "Modern tunnel boring machine control room with engineers monitoring precise guidance data, hydraulic systems and sensors, realistic Chinese infrastructure technology, wide horizontal composition, no readable text, no logo"
+    },
+    {
+      "heading": "它最终改变什么",
+      "narration": "锡宜S2线全长约六十一公里，设计时速一百六十公里，目标是串联硕放机场、无锡火车站和宜兴高铁站，并构建锡宜半小时通勤圈。先锋号下线只是工程的开始，真正的考验还在湖底掘进、设备可靠性和施工组织。你更想了解盾构机怎样在地下转弯，还是怎样防止湖水进入隧道？把问题留在评论区。",
+      "overlay": "61公里 时速160公里",
+      "image_prompt": "Future intercity railway connecting Wuxi and Yixing with a tunnel under Taihu Lake, train, airport and railway hubs connected on a clean regional map-like cinematic visualization, wide horizontal composition, no readable text, no logo"
+    }
+  ]
+}
