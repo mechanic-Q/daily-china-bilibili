@@ -33,9 +33,8 @@ python3 scripts/verify_sample.py --date 2026-07-17
 python3 scripts/preview_publish.py --date 2026-07-17
 ```
 
-最后一条永远不执行投稿。当前本机 `sau bilibili` 尚未暴露
-`--thumbnail`，因此会以 `BLOCKED` 非零退出；用户确认样本并补齐运输层后，
-它才只打印带封面的目标投稿命令。
+最后一条永远不执行投稿。当前运输层已就绪，预览命令包含 `--thumbnail`。
+仅当用户明确指示后，才执行真实投稿。
 
 ## 许可证
 
