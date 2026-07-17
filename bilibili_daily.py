@@ -139,7 +139,9 @@ def validate_contract(contract: dict) -> None:
     if missing:
         raise ValueError(f"内容合同缺少字段: {', '.join(missing)}")
     if not Path(contract["source_file"]).is_file():
-        raise ValueError(f"审核源文件不存在: {contract['source_file']}")
+        raise ValueError(f"素材源文件不存在: {contract['source_file']}")
+    if "source_url_file" in contract and not Path(contract["source_url_file"]).is_file():
+        raise ValueError(f"URL辅助源文件不存在: {contract['source_url_file']}")
     if contract["tid"] != 232:
         raise ValueError("B站分区必须为 tid=232")
     if not 1 <= len(contract["segments"]) <= 8:
