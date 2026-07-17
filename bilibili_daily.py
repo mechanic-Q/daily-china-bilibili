@@ -238,7 +238,7 @@ def validate_media_probe(probe: dict, target_duration_seconds: list[int]) -> flo
 
 def transition_state(current: str, target: str) -> str:
     if current not in PHASE_ONE_STATES or target not in PHASE_ONE_STATES:
-        raise ValueError("阶段一禁止跨过用户确认门")
+        raise ValueError("状态不在阶段一范围内")
     if PHASE_ONE_STATES.index(target) != PHASE_ONE_STATES.index(current) + 1:
         raise ValueError(f"非法状态迁移: {current} -> {target}")
     return target
@@ -263,6 +263,7 @@ def write_manifest(
     *,
     state: str,
     artifacts: dict[str, str | Path],
+    extra_fields: dict | None = None,
 ) -> dict:
     validate_contract(contract)
     if state not in PHASE_ONE_STATES:
@@ -289,6 +290,11 @@ def write_manifest(
         "tags": contract["tags"],
         "artifacts": records,
     }
+    if extra_fields:
+        protected = manifest.keys() & extra_fields.keys()
+        if protected:
+            raise ValueError(f"附加字段不得覆盖核心字段: {', '.join(sorted(protected))}")
+        manifest.update(extra_fields)
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
     temporary = output.with_suffix(output.suffix + ".tmp")

@@ -208,12 +208,13 @@ def build(date: str) -> Path:
             "cover": cover,
             "video": video,
         },
+        extra_fields={
+            "media_probe": media_probe,
+            "duration_seconds": duration,
+            "old_video_path": str(old_video),
+        },
     )
-    manifest["media_probe"] = media_probe
-    manifest["duration_seconds"] = duration
-    manifest["old_video_path"] = str(old_video)
     manifest_path = output / "manifest.json"
-    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(manifest_path)
     return manifest_path
 

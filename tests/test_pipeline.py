@@ -57,7 +57,7 @@ class PipelineTests(unittest.TestCase):
             transition_state("offline_verified", "awaiting_user_confirmation"),
             "awaiting_user_confirmation",
         )
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, "状态不在阶段一范围内"):
             transition_state("awaiting_user_confirmation", "submitted_unverified")
 
     def test_manifest_hashes_artifacts_and_publish_preview_is_non_executing(self):
@@ -83,6 +83,30 @@ class PipelineTests(unittest.TestCase):
             self.assertIn("--thumbnail", command)
             self.assertIn(str(cover.resolve()), command)
             self.assertEqual(json.loads(manifest_path.read_text(encoding="utf-8"))["state"], "awaiting_user_confirmation")
+
+    def test_manifest_writes_extra_fields_in_the_same_atomic_replace(self):
+        contract = load_contract(CONTRACT)
+        with tempfile.TemporaryDirectory() as temp:
+            temp = Path(temp)
+            video = temp / "video.mp4"
+            video.write_bytes(b"video")
+            manifest_path = temp / "manifest.json"
+            manifest = write_manifest(
+                contract,
+                manifest_path,
+                state="rendered",
+                artifacts={"video": video},
+                extra_fields={
+                    "duration_seconds": 140.154667,
+                    "old_video_path": "/old/video.mp4",
+                    "media_probe": {"format": {"duration": "140.154667"}},
+                },
+            )
+            saved = json.loads(manifest_path.read_text(encoding="utf-8"))
+            self.assertEqual(saved, manifest)
+            self.assertEqual(saved["duration_seconds"], 140.154667)
+            self.assertEqual(saved["old_video_path"], "/old/video.mp4")
+            self.assertFalse(manifest_path.with_suffix(".json.tmp").exists())
 
     def test_publish_preview_rejects_unverified_manifest(self):
         contract = load_contract(CONTRACT)
