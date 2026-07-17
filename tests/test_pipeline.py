@@ -3,6 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import bilibili_daily
 from PIL import Image
 
 from bilibili_daily import (
@@ -221,6 +222,78 @@ class PipelineTests(unittest.TestCase):
             record_cache(metadata, expected)
             self.assertTrue(cache_matches(artifact, metadata, expected))
             self.assertFalse(cache_matches(artifact, metadata, fingerprint("changed", "voice", "+10%")))
+
+    def test_mirror_publish_package_uses_daily_video_sibling_directory(self):
+        with tempfile.TemporaryDirectory() as temp:
+            temp = Path(temp)
+            source = temp / "artifacts" / "2026-07-17"
+            destination_root = temp / "每日新中国"
+            source.mkdir(parents=True)
+            names = {
+                "video": "每日新中国b站_2026-07-17_盾构机.mp4",
+                "cover": "每日新中国b站_2026-07-17_封面.png",
+                "audio": "每日新中国b站_2026-07-17_旁白.mp3",
+            }
+            for name in names.values():
+                (source / name).write_bytes(name.encode())
+            manifest = {
+                "date": "2026-07-17",
+                "state": "awaiting_user_confirmation",
+                "artifacts": {
+                    key: {"path": str((source / name).resolve()), "sha256": bilibili_daily._sha256(source / name)}
+                    for key, name in names.items()
+                },
+            }
+            (source / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+            (source / "verification.json").write_text(
+                json.dumps({"result": "PASS", "video": manifest["artifacts"]["video"]["path"], "cover": manifest["artifacts"]["cover"]["path"]}),
+                encoding="utf-8",
+            )
+            (source / "work").mkdir()
+            (source / "work" / "clip_01.mp4").write_bytes(b"intermediate")
+
+            destination = bilibili_daily.mirror_publish_package(source, destination_root)
+
+            expected = destination_root / "2026-07-17" / "video" / "每日新中国b站"
+            self.assertEqual(destination, expected)
+            self.assertEqual({path.name for path in destination.iterdir()}, {*names.values(), "manifest.json", "verification.json"})
+            copied_manifest = json.loads((destination / "manifest.json").read_text(encoding="utf-8"))
+            self.assertEqual(Path(copied_manifest["artifacts"]["video"]["path"]).parent, destination)
+            copied_verification = json.loads((destination / "verification.json").read_text(encoding="utf-8"))
+            self.assertEqual(Path(copied_verification["cover"]).parent, destination)
+            self.assertFalse((destination / "work").exists())
+
+    def test_mirror_publish_package_rejects_unexpected_destination_files(self):
+        with tempfile.TemporaryDirectory() as temp:
+            temp = Path(temp)
+            source = temp / "artifacts" / "2026-07-17"
+            destination_root = temp / "每日新中国"
+            destination = destination_root / "2026-07-17" / "video" / "每日新中国b站"
+            source.mkdir(parents=True)
+            destination.mkdir(parents=True)
+            stale = destination / "旧版.mp4"
+            stale.write_bytes(b"do not delete")
+            names = {
+                "video": "每日新中国b站_2026-07-17_盾构机.mp4",
+                "cover": "每日新中国b站_2026-07-17_封面.png",
+                "audio": "每日新中国b站_2026-07-17_旁白.mp3",
+            }
+            for name in names.values():
+                (source / name).write_bytes(name.encode())
+            manifest = {
+                "date": "2026-07-17",
+                "state": "awaiting_user_confirmation",
+                "artifacts": {
+                    key: {"path": str((source / name).resolve()), "sha256": bilibili_daily._sha256(source / name)}
+                    for key, name in names.items()
+                },
+            }
+            (source / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+            (source / "verification.json").write_text(json.dumps({"result": "PASS"}), encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "目标目录含非发布包内容: 旧版.mp4"):
+                bilibili_daily.mirror_publish_package(source, destination_root)
+            self.assertEqual(stale.read_bytes(), b"do not delete")
 
 
 if __name__ == "__main__":

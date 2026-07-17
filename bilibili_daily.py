@@ -4,6 +4,7 @@ import hashlib
 import json
 import re
 import shlex
+import shutil
 from datetime import date as calendar_date
 from fractions import Fraction
 from pathlib import Path
@@ -60,6 +61,60 @@ def cache_matches(artifact: str | Path, metadata: str | Path, expected: str) -> 
         and metadata.is_file()
         and metadata.read_text(encoding="ascii").strip() == expected
     )
+
+
+def _atomic_copy(source: Path, destination: Path) -> None:
+    temporary = destination.with_suffix(destination.suffix + ".tmp")
+    shutil.copy2(source, temporary)
+    temporary.replace(destination)
+
+
+def _atomic_json(path: Path, data: dict) -> None:
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    temporary.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    temporary.replace(path)
+
+
+def mirror_publish_package(
+    source_dir: str | Path,
+    daily_root: str | Path = "/mnt/e/每日新中国",
+) -> Path:
+    source_dir = Path(source_dir).resolve()
+    manifest = json.loads((source_dir / "manifest.json").read_text(encoding="utf-8"))
+    verification = json.loads((source_dir / "verification.json").read_text(encoding="utf-8"))
+    date = validate_date(manifest["date"])
+    if manifest.get("state") != "awaiting_user_confirmation" or verification.get("result") != "PASS":
+        raise ValueError("只同步已通过离线验收的发布包")
+
+    destination = Path(daily_root) / date / "video" / "每日新中国b站"
+    destination.mkdir(parents=True, exist_ok=True)
+    sources = {}
+    for name in ("video", "cover", "audio"):
+        record = manifest["artifacts"][name]
+        source = Path(record["path"])
+        if not source.is_file() or _sha256(source) != record["sha256"]:
+            raise ValueError(f"同步源缺失或哈希不一致: {name}")
+        sources[name] = source
+
+    expected_names = {source.name for source in sources.values()} | {"manifest.json", "verification.json"}
+    unexpected = sorted(path.name for path in destination.iterdir() if path.name not in expected_names)
+    if unexpected:
+        raise ValueError(f"目标目录含非发布包内容: {', '.join(unexpected)}")
+
+    copied_manifest = json.loads(json.dumps(manifest))
+    copied_paths = {}
+    for name, source in sources.items():
+        target = destination / source.name
+        _atomic_copy(source, target)
+        copied_manifest["artifacts"][name]["path"] = str(target.resolve())
+        copied_paths[name] = str(target.resolve())
+
+    copied_verification = json.loads(json.dumps(verification))
+    copied_verification["video"] = copied_paths["video"]
+    copied_verification["cover"] = copied_paths["cover"]
+    _atomic_json(destination / "manifest.json", copied_manifest)
+    _atomic_json(destination / "verification.json", copied_verification)
+    return destination
 
 
 def load_contract(path: str | Path) -> dict:

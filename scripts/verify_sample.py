@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from bilibili_daily import advance_after_verification, validate_date  # noqa: E402
+from bilibili_daily import advance_after_verification, mirror_publish_package, validate_date  # noqa: E402
 
 OLD_SCRIPT_PATHS = (
     Path("/home/lmr/.hermes/scripts/daily_china_crosspost.py"),
@@ -98,6 +98,7 @@ def verify(date: str) -> dict:
     }
     report = artifact_dir / "verification.json"
     report.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    result["mirror_directory"] = str(mirror_publish_package(artifact_dir))
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return result
 

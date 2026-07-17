@@ -22,7 +22,7 @@ def main() -> None:
     parser.add_argument("--date", required=True)
     args = parser.parse_args()
     date = validate_date(args.date)
-    manifest = ROOT / "artifacts" / date / "manifest.json"
+    manifest = Path("/mnt/e/每日新中国") / date / "video" / "每日新中国b站" / "manifest.json"
     sau = Path.home() / "social-auto-upload/.venv/bin/sau"
     help_result = subprocess.run(
         [str(sau), "bilibili", "upload-video", "--help"],

@@ -6,7 +6,7 @@
 
 **Goal:** 从当天已审核新闻生成一条真正不同于旧竖版简报的16:9单主题B站专版，配套封面、manifest、离线核验和用户确认门。
 
-**Architecture:** 新仓库只读 `/mnt/e/每日新中国/<date>/`，所有新产物写入本仓库 `artifacts/<date>/`。底层媒体使用现有 Pillow、edge-tts 和 FFmpeg；真实投稿未来调用既有 `sau bilibili`，阶段一只打印命令。
+**Architecture:** 新仓库从 `/mnt/e/每日新中国/<date>/` 读取审核材料，验收源写入本仓库 `artifacts/<date>/`；验收通过后把最终视频、封面、旁白、manifest 和 verification 同步到 `/mnt/e/每日新中国/<date>/video/每日新中国b站/`，与其他单件视频同级。底层媒体使用现有 Pillow、edge-tts 和 FFmpeg；真实投稿未来调用既有 `sau bilibili`，阶段一只打印命令。
 
 **Tech Stack:** Python 3.12 标准库、Pillow、requests、edge-tts、FFmpeg/ffprobe、unittest。
 
