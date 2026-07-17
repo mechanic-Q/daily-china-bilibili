@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import shlex
+from datetime import date as calendar_date
+from fractions import Fraction
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageEnhance, ImageFont
@@ -19,6 +22,44 @@ PHASE_ONE_STATES = (
     "offline_verified",
     "awaiting_user_confirmation",
 )
+
+
+def validate_date(value: str) -> str:
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+        raise ValueError("日期必须为 YYYY-MM-DD")
+    try:
+        calendar_date.fromisoformat(value)
+    except ValueError as error:
+        raise ValueError("日期不是有效日历日期") from error
+    return value
+
+
+def thumbnail_transport_ready(help_text: str) -> bool:
+    return "--thumbnail" in help_text
+
+
+def fingerprint(*values: str) -> str:
+    payload = json.dumps(values, ensure_ascii=False, separators=(",", ":")).encode()
+    return hashlib.sha256(payload).hexdigest()
+
+
+def record_cache(metadata: str | Path, expected: str) -> None:
+    metadata = Path(metadata)
+    metadata.parent.mkdir(parents=True, exist_ok=True)
+    temporary = metadata.with_suffix(metadata.suffix + ".tmp")
+    temporary.write_text(expected + "\n", encoding="ascii")
+    temporary.replace(metadata)
+
+
+def cache_matches(artifact: str | Path, metadata: str | Path, expected: str) -> bool:
+    artifact = Path(artifact)
+    metadata = Path(metadata)
+    return (
+        artifact.is_file()
+        and artifact.stat().st_size > 0
+        and metadata.is_file()
+        and metadata.read_text(encoding="ascii").strip() == expected
+    )
 
 
 def load_contract(path: str | Path) -> dict:
@@ -180,6 +221,12 @@ def validate_media_probe(probe: dict, target_duration_seconds: list[int]) -> flo
         raise ValueError("视频轨必须为 H.264")
     if (video.get("width"), video.get("height")) != (WIDTH, HEIGHT):
         raise ValueError("视频必须为1920×1080横版")
+    try:
+        frame_rate = Fraction(video.get("r_frame_rate", "0/1"))
+    except (ValueError, ZeroDivisionError) as error:
+        raise ValueError("视频帧率无效") from error
+    if frame_rate != 30:
+        raise ValueError(f"视频必须为30fps，实际为 {frame_rate}")
     if not audio or audio.get("codec_name") != "aac":
         raise ValueError("音频轨必须为 AAC")
     duration = float(probe.get("format", {}).get("duration", 0))
@@ -195,6 +242,14 @@ def transition_state(current: str, target: str) -> str:
     if PHASE_ONE_STATES.index(target) != PHASE_ONE_STATES.index(current) + 1:
         raise ValueError(f"非法状态迁移: {current} -> {target}")
     return target
+
+
+def advance_after_verification(current: str) -> str:
+    if current == "awaiting_user_confirmation":
+        return current
+    if current != "rendered":
+        raise ValueError(f"不能从 {current} 执行离线验收")
+    return transition_state(transition_state(current, "offline_verified"), "awaiting_user_confirmation")
 
 
 def _sha256(path: Path) -> str:
@@ -244,8 +299,11 @@ def write_manifest(
 
 def build_publish_command(manifest_path: str | Path) -> list[str]:
     manifest = json.loads(Path(manifest_path).read_text(encoding="utf-8"))
-    if manifest.get("state") != "awaiting_user_confirmation":
-        raise ValueError("离线样本尚未到用户确认门")
+    if (
+        manifest.get("state") != "awaiting_user_confirmation"
+        or manifest.get("state_ceiling") != "awaiting_user_confirmation"
+    ):
+        raise ValueError("离线样本尚未安全停在用户确认门")
     artifacts = manifest.get("artifacts", {})
     for required in ("video", "cover"):
         item = artifacts.get(required, {})

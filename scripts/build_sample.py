@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import hashlib
 import json
 import shutil
 import subprocess
@@ -18,10 +19,14 @@ sys.path.insert(0, str(ROOT))
 
 from bilibili_daily import (  # noqa: E402
     build_clip_command,
+    cache_matches,
     create_cover,
     create_slide,
+    fingerprint,
     load_contract,
+    record_cache,
     validate_contract,
+    validate_date,
     validate_media_probe,
     write_manifest,
 )
@@ -51,14 +56,21 @@ def image_is_usable(path: Path) -> bool:
         return False
 
 
+def sha256(path: Path) -> str:
+    with path.open("rb") as file_obj:
+        return hashlib.file_digest(file_obj, "sha256").hexdigest()
+
+
 def generate_image(prompt: str, output: Path, retries: int = 8) -> None:
-    if image_is_usable(output):
-        return
     full_prompt = (
         prompt
         + ", cinematic realistic Chinese engineering documentary, horizontal 16:9 composition, "
         + "main subject inside safe center area, no readable text, no logo, no watermark"
     )
+    metadata = output.with_suffix(".input.sha256")
+    expected = fingerprint(full_prompt, IMAGE_ENDPOINT, IMAGE_MODEL, IMAGE_SIZE)
+    if image_is_usable(output) and cache_matches(output, metadata, expected):
+        return
     for attempt in range(1, retries + 1):
         try:
             response = requests.post(
@@ -76,6 +88,7 @@ def generate_image(prompt: str, output: Path, retries: int = 8) -> None:
                     image_response.raise_for_status()
                     output.write_bytes(image_response.content)
                 if image_is_usable(output):
+                    record_cache(metadata, expected)
                     return
             if response.status_code not in (429,) and response.status_code < 500:
                 raise RuntimeError(f"图片接口HTTP {response.status_code}: {response.text[:300]}")
@@ -87,7 +100,9 @@ def generate_image(prompt: str, output: Path, retries: int = 8) -> None:
 
 
 def generate_audio(text: str, output: Path) -> None:
-    if output.is_file() and output.stat().st_size > 0:
+    metadata = output.with_suffix(".input.sha256")
+    expected = fingerprint(text, VOICE, RATE)
+    if cache_matches(output, metadata, expected):
         return
     run(
         [
@@ -105,6 +120,7 @@ def generate_audio(text: str, output: Path) -> None:
     )
     if not output.is_file() or output.stat().st_size == 0:
         raise RuntimeError(f"TTS未生成有效音频: {output}")
+    record_cache(metadata, expected)
 
 
 def probe(path: Path) -> dict:
@@ -114,7 +130,7 @@ def probe(path: Path) -> dict:
             "-v",
             "error",
             "-show_entries",
-            "format=duration,size:stream=codec_type,codec_name,width,height",
+            "format=duration,size:stream=codec_type,codec_name,width,height,r_frame_rate",
             "-of",
             "json",
             str(path),
@@ -136,6 +152,7 @@ def concat_media(paths: list[Path], list_file: Path, output: Path, *, copy_codec
 
 
 def build(date: str) -> Path:
+    date = validate_date(date)
     contract_path = ROOT / "content" / f"{date}-shield-machine.json"
     contract = load_contract(contract_path)
     validate_contract(contract)
@@ -176,13 +193,13 @@ def build(date: str) -> Path:
     media_probe = probe(video)
     duration = validate_media_probe(media_probe, contract["target_duration_seconds"])
     old_video = Path(OLD_VIDEO_TEMPLATE.format(date=date))
-    if old_video.is_file() and old_video.read_bytes() == video.read_bytes():
+    if old_video.is_file() and sha256(old_video) == sha256(video):
         raise RuntimeError("新旧最终视频逐字节相同，拒绝验收")
 
     manifest = write_manifest(
         contract,
         output / "manifest.json",
-        state="awaiting_user_confirmation",
+        state="rendered",
         artifacts={
             "content_contract": contract_path,
             "source": Path(contract["source_file"]),

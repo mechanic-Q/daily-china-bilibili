@@ -35,7 +35,8 @@
 ## Task 4：发布预览与 fail-closed
 
 - 先写失败测试：未到 `awaiting_user_confirmation` 或缺封面时禁止生成命令
-- 只打印 `sau bilibili upload-video` 命令
+- 本机 `sau bilibili` 未暴露 `--thumbnail` 时以 `BLOCKED` 非零退出
+- 运输层补齐后只打印 `sau bilibili upload-video` 命令
 - 阶段一不得执行 subprocess 投稿
 
 ## Task 5：完整验证与审查
