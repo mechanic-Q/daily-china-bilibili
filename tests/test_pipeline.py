@@ -40,6 +40,9 @@ class PipelineTests(unittest.TestCase):
         self.assertNotIn("欢迎收看", contract["segments"][0]["narration"][:60])
         self.assertEqual(contract["state_ceiling"], "awaiting_user_confirmation")
         self.assertTrue(Path(contract["source_file"]).is_file())
+        self.assertTrue(Path(contract["source_url_file"]).is_file())
+        self.assertIn("3新闻_概述", contract["source_file"])
+        self.assertIn("1新闻_链接", contract["source_url_file"])
 
     def test_cover_is_1920_by_1080(self):
         with tempfile.TemporaryDirectory() as temp:
