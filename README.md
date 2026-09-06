@@ -1,3 +1,17 @@
+<p align="center">
+  <img src="./assets/readme/hero.svg" width="100%" alt="每日新中国·B站：B 站专版视频的生成与发布管理——读取审核材料、生成金色横版封面、sau 投稿，未经用户确认不公开投稿">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/规格-1920×1080_16:9-f0b429" alt="1920×1080 横版">
+  &nbsp;
+  <img src="https://img.shields.io/badge/时长-2–4_min-f0b429" alt="2-4 分钟">
+  &nbsp;
+  <img src="https://img.shields.io/badge/阶段-1_离线样本-f0b429" alt="阶段一：仅离线样本">
+  &nbsp;
+  <img src="https://img.shields.io/badge/License-Proprietary_Source--Available-4a9eff" alt="Proprietary Source-Available">
+</p>
+
 # 每日新中国b站
 
 > Language: 中文
