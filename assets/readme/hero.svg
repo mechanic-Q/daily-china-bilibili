@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="1200" height="320" viewBox="0 0 1200 320"
+     role="img" aria-labelledby="db-title db-desc">
+  <title id="db-title">每日新中国 · B站 — 单主题视频专版生成与发布管理</title>
+  <desc id="db-desc">左侧为项目名与一句话介绍：B 站专版视频的生成与发布管理，先离线样本、经用户确认后放量。右侧为发布管道：读取审核材料、生成金色封面、sau 投稿、进入 awaiting_user_confirmation 状态门，最后公开核验。</desc>
+
+  <rect width="1200" height="320" rx="26" fill="#0d1420"/>
+
+  <!-- ===== 左：标题块 ===== -->
+  <g id="title-block" transform="translate(64 0)">
+    <text x="0" y="84" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+          font-size="16" letter-spacing="2" fill="#f0b429">STAGE 1 · OFFLINE SAMPLE ONLY</text>
+
+    <text x="0" y="140" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif"
+          font-size="46" font-weight="800" fill="#e6ecf5">每日新中国 · B站</text>
+
+    <text x="0" y="188" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif"
+          font-size="22" fill="#b8c4d6">B 站专版视频的生成与发布管理——</text>
+    <text x="0" y="220" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif"
+          font-size="22" fill="#b8c4d6">单主题解释型内容，先离线样本，经确认后放量。</text>
+
+    <text x="0" y="266" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+          font-size="16" fill="#8b9ab0">1920×1080 · 2–4 min · 金色高对比封面</text>
+    <text x="0" y="294" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+          font-size="16" fill="#8b9ab0">Pillow · edge-tts · FFmpeg · sau</text>
+  </g>
+
+  <!-- ===== 右：发布管道 ===== -->
+  <g id="publish-pipeline" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+    <g>
+      <circle cx="680" cy="72" r="13" fill="#4a9eff"/><text x="680" y="77" font-size="14" font-weight="700" fill="#0d1420" text-anchor="middle">1</text>
+      <text x="706" y="70" font-family="-apple-system, 'PingFang SC', 'Noto Sans CJK SC', sans-serif" font-size="17" fill="#e6ecf5">读取审核材料</text>
+      <text x="842" y="70" font-size="14" fill="#8b9ab0">/mnt/e/每日新中国/&lt;date&gt;/</text>
+    </g>
+    <line x1="680" y1="85" x2="680" y2="111" stroke="#283649" stroke-width="2"/>
+    <g>
+      <circle cx="680" cy="124" r="13" fill="#4a9eff"/><text x="680" y="129" font-size="14" font-weight="700" fill="#0d1420" text-anchor="middle">2</text>
+      <text x="706" y="122" font-family="-apple-system, 'PingFang SC', 'Noto Sans CJK SC', sans-serif" font-size="17" fill="#e6ecf5">生成横版封面</text>
+      <text x="842" y="122" font-size="14" fill="#f0b429">1920×1080 · 金色大字</text>
+    </g>
+    <line x1="680" y1="137" x2="680" y2="163" stroke="#283649" stroke-width="2"/>
+    <g>
+      <circle cx="680" cy="176" r="13" fill="#4a9eff"/><text x="680" y="181" font-size="14" font-weight="700" fill="#0d1420" text-anchor="middle">3</text>
+      <text x="706" y="174" font-family="-apple-system, 'PingFang SC', 'Noto Sans CJK SC', sans-serif" font-size="17" fill="#e6ecf5">sau 投稿 B 站</text>
+      <text x="842" y="174" font-size="14" fill="#8b9ab0">social-auto-upload</text>
+    </g>
+    <line x1="680" y1="189" x2="680" y2="215" stroke="#283649" stroke-width="2"/>
+    <g>
+      <rect x="660" y="218" width="456" height="66" rx="10" fill="#16202f" stroke="#f0b429" stroke-opacity="0.6"/>
+      <text x="682" y="246" font-family="-apple-system, 'PingFang SC', 'Noto Sans CJK SC', sans-serif" font-size="17" fill="#e6ecf5">状态门：awaiting_user_confirmation</text>
+      <text x="682" y="270" font-size="14" fill="#8b9ab0">未经用户确认，不执行公开投稿 · 验收源保留 artifacts/</text>
+    </g>
+  </g>
+</svg>
